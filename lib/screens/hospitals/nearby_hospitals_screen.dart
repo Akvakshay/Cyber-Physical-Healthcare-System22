@@ -1,0 +1,110 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../providers/emergency_provider.dart';
+import '../../providers/view_state.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/state_views.dart';
+
+class NearbyHospitalsScreen extends StatefulWidget {
+  const NearbyHospitalsScreen({super.key});
+
+  @override
+  State<NearbyHospitalsScreen> createState() => _NearbyHospitalsScreenState();
+}
+
+class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EmergencyProvider>().loadNearbyHospitals();
+    });
+  }
+
+  Future<void> _call(String phone) async {
+    final uri = Uri(scheme: 'tel', path: phone);
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final emergency = context.watch<EmergencyProvider>();
+    final state = emergency.hospitalsState;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Nearby Hospitals')),
+      body: Builder(builder: (_) {
+        if (state.status == ViewStatus.loading) {
+          return const LoadingView(message: 'Finding hospitals near you…');
+        }
+        if (state.isError) {
+          return ErrorView(
+            message: state.errorMessage ?? 'Could not load hospitals.',
+            onRetry: () => emergency.loadNearbyHospitals(),
+          );
+        }
+        if (state.isEmpty || (state.data?.isEmpty ?? true)) {
+          return const EmptyView(
+            message: 'No hospitals found nearby.',
+            icon: Icons.local_hospital_outlined,
+          );
+        }
+
+        final hospitals = state.data!;
+        return ListView.separated(
+          padding: const EdgeInsets.all(20),
+          itemCount: hospitals.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final hospital = hospitals[index];
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppRadii.md),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: hospital.hasEmergencyBeds
+                        ? const Color(0xFFDCFCE7)
+                        : const Color(0xFFFEE2E2),
+                    child: Icon(
+                      Icons.local_hospital,
+                      color: hospital.hasEmergencyBeds ? AppColors.success : AppColors.error,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(hospital.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                        Text(hospital.address, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${hospital.distanceKm} km away · ${hospital.hasEmergencyBeds ? "Beds available" : "No beds reported"}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: hospital.hasEmergencyBeds ? AppColors.success : AppColors.error,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => _call(hospital.phone),
+                    icon: const Icon(Icons.call, color: AppColors.primaryStart),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+}
