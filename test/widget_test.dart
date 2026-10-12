@@ -84,6 +84,6 @@ void main() {
     expect(find.text('00:00'), findsOneWidget);
     expect(find.text('Pause'), findsOneWidget);
     expect(find.text('Stop'), findsOneWidget);
-    expect(find.text('Send'), findsOneWidget);
+    expect(find.text('Save'), findsOneWidget);
   });
 }

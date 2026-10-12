@@ -154,40 +154,41 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: CustomTextField(
-                    label: 'Age',
-                    hint: 'Age',
-                    controller: _ageController,
-                    focusNode: _ageFocus,
-                    nextFocusNode: _weightFocus,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    onChanged: (v) => provider.updateDraft(
-                      (p) => p.copyWith(age: int.tryParse(v)),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: CustomTextField(
+                        label: 'Age',
+                        hint: 'Age',
+                        controller: _ageController,
+                        focusNode: _ageFocus,
+                        nextFocusNode: _weightFocus,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                        onChanged: (v) => provider.updateDraft(
+                          (p) => p.copyWith(age: int.tryParse(v)),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: CustomTextField(
-                    label: 'Weights',
-                    hint: 'Weight in kg',
-                    controller: _weightController,
-                    focusNode: _weightFocus,
-                    nextFocusNode: _diseasesFocus,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
-                    onChanged: (v) => provider.updateDraft(
-                      (p) => p.copyWith(weightKg: double.tryParse(v)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: CustomTextField(
+                        label: 'Weight',
+                        hint: 'Weight in kg',
+                        controller: _weightController,
+                        focusNode: _weightFocus,
+                        nextFocusNode: _diseasesFocus,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
+                        onChanged: (v) => provider.updateDraft(
+                          (p) => p.copyWith(weightKg: double.tryParse(v)),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
             const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
