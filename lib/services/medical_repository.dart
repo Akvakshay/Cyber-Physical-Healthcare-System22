@@ -1,4 +1,6 @@
 import '../models/medical_profile_model.dart';
+import '../models/prescription_model.dart';
+import '../models/voice_note_model.dart';
 
 class MedicalRepository {
   MedicalProfileModel? _stored;
@@ -19,4 +21,33 @@ class MedicalRepository {
     _stored = profile;
     return profile;
   }
+
+  Future<PrescriptionModel> savePrescription(PrescriptionModel prescription) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    final current = _stored ?? const MedicalProfileModel();
+    final updatedList = List<PrescriptionModel>.from(current.prescriptions)
+      ..removeWhere((p) => p.id == prescription.id)
+      ..insert(0, prescription);
+    _stored = current.copyWith(prescriptions: updatedList);
+    return prescription;
+  }
+
+  Future<void> deletePrescription(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (_stored != null) {
+      final updatedList = List<PrescriptionModel>.from(_stored!.prescriptions)
+        ..removeWhere((p) => p.id == id);
+      _stored = _stored!.copyWith(prescriptions: updatedList);
+    }
+  }
+
+  Future<VoiceNoteModel> saveVoiceNote(VoiceNoteModel note) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    final current = _stored ?? const MedicalProfileModel();
+    final updatedList = List<VoiceNoteModel>.from(current.voiceNotes)
+      ..insert(0, note);
+    _stored = current.copyWith(voiceNotes: updatedList);
+    return note;
+  }
 }
+

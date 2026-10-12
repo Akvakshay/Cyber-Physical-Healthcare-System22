@@ -1,3 +1,6 @@
+import 'prescription_model.dart';
+import 'voice_note_model.dart';
+
 enum Gender { male, female, other }
 
 extension GenderLabel on Gender {
@@ -20,6 +23,8 @@ class MedicalProfileModel {
   final String knownDiseases;
   final String allergies;
   final String? selectedEmergencyTypeId;
+  final List<PrescriptionModel> prescriptions;
+  final List<VoiceNoteModel> voiceNotes;
 
   const MedicalProfileModel({
     this.age,
@@ -28,6 +33,8 @@ class MedicalProfileModel {
     this.knownDiseases = '',
     this.allergies = '',
     this.selectedEmergencyTypeId,
+    this.prescriptions = const [],
+    this.voiceNotes = const [],
   });
 
   /// BMI requires height; since the design only captures weight, we derive
@@ -47,6 +54,8 @@ class MedicalProfileModel {
     String? knownDiseases,
     String? allergies,
     String? selectedEmergencyTypeId,
+    List<PrescriptionModel>? prescriptions,
+    List<VoiceNoteModel>? voiceNotes,
   }) {
     return MedicalProfileModel(
       age: age ?? this.age,
@@ -56,6 +65,8 @@ class MedicalProfileModel {
       allergies: allergies ?? this.allergies,
       selectedEmergencyTypeId:
           selectedEmergencyTypeId ?? this.selectedEmergencyTypeId,
+      prescriptions: prescriptions ?? this.prescriptions,
+      voiceNotes: voiceNotes ?? this.voiceNotes,
     );
   }
 
@@ -69,6 +80,14 @@ class MedicalProfileModel {
       knownDiseases: json['knownDiseases'] as String? ?? '',
       allergies: json['allergies'] as String? ?? '',
       selectedEmergencyTypeId: json['selectedEmergencyTypeId'] as String?,
+      prescriptions: (json['prescriptions'] as List<dynamic>?)
+              ?.map((e) => PrescriptionModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      voiceNotes: (json['voiceNotes'] as List<dynamic>?)
+              ?.map((e) => VoiceNoteModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
@@ -79,5 +98,7 @@ class MedicalProfileModel {
         'knownDiseases': knownDiseases,
         'allergies': allergies,
         'selectedEmergencyTypeId': selectedEmergencyTypeId,
+        'prescriptions': prescriptions.map((p) => p.toJson()).toList(),
+        'voiceNotes': voiceNotes.map((v) => v.toJson()).toList(),
       };
 }

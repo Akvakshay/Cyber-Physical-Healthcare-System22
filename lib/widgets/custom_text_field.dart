@@ -16,6 +16,7 @@ class CustomTextField extends StatefulWidget {
     this.inputFormatters,
     this.textInputAction,
     this.onChanged,
+    this.maxLines = 1,
   });
 
   final String label;
@@ -30,6 +31,7 @@ class CustomTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextInputAction? textInputAction;
   final void Function(String)? onChanged;
+  final int maxLines;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -56,6 +58,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           controller: widget.controller,
           focusNode: widget.focusNode,
           obscureText: widget.obscureText ? _obscured : false,
+          maxLines: widget.obscureText ? 1 : widget.maxLines,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
           inputFormatters: widget.inputFormatters,

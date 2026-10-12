@@ -140,11 +140,11 @@ class _AmbulanceAssignedScreenState extends State<AmbulanceAssignedScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        SizedBox(
+                        const SizedBox(
                           height: 260,
                           child: MockMapBackground(
                             child: Stack(
-                              children: const [
+                              children: [
                                 Positioned(
                                   left: 40,
                                   bottom: 60,

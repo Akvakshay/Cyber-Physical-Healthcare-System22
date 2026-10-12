@@ -7,6 +7,7 @@ import '../screens/emergency/ambulance_assigned_screen.dart';
 import '../screens/emergency/confirm_location_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/hospitals/nearby_hospitals_screen.dart';
+import '../screens/medical_profile/add_prescription_screen.dart';
 import '../screens/medical_profile/medical_profile_screen.dart';
 
 /// Simple named-route generator with a shared slide+fade transition, used
@@ -16,11 +17,13 @@ class AppRouter {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final builders = <String, WidgetBuilder>{
+      '/': (_) => const LoginScreen(),
       '/login': (_) => const LoginScreen(),
       '/signup': (_) => const SignupScreen(),
       '/forgot-password': (_) => const ForgotPasswordScreen(),
       '/home': (_) => const HomeScreen(),
       '/medical-profile': (_) => const MedicalProfileScreen(),
+      '/add-prescription': (_) => const AddPrescriptionScreen(),
       '/confirm-location': (_) => const ConfirmLocationScreen(),
       '/ambulance-assigned': (_) => const AmbulanceAssignedScreen(),
       '/hospitals': (_) => const NearbyHospitalsScreen(),

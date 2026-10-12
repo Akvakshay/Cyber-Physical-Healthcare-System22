@@ -9,8 +9,10 @@ import '../../providers/view_state.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/emergency_type_card.dart';
+import '../../widgets/medical_profile_floating_actions.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/state_views.dart';
+import '../../widgets/voice_recording_sheet.dart';
 
 class MedicalProfileScreen extends StatefulWidget {
   const MedicalProfileScreen({super.key});
@@ -48,6 +50,19 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
     _allergiesController.text = profile.allergies;
   }
 
+  Future<void> _openVoiceRecorder(MedicalProfileProvider provider) async {
+    final note = await VoiceRecordingSheet.show(context);
+    if (!mounted || note == null) return;
+    await provider.addVoiceNote(note);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Voice note recorded (${note.formattedDuration})'),
+        backgroundColor: const Color(0xFF6B4EE6),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     for (final c in [_ageController, _weightController, _diseasesController, _allergiesController]) {
@@ -65,7 +80,11 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
     final status = provider.state.status;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Medical Profile')),
+      appBar: AppBar(
+        title: const Text('Medical Profile'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: SafeArea(
         child: Builder(
           builder: (_) {
@@ -88,17 +107,52 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
   Widget _buildForm(BuildContext context, MedicalProfileProvider provider) {
     final draft = provider.draft;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('A. Demographics', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4),
-            const Text('Update your personal details for a complete profile.'),
-            const SizedBox(height: 18),
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Centered Heart Badge matching Image 2
+                Center(
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6B4EE6),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.favorite, color: Colors.white, size: 26),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Center(
+                  child: Text(
+                    'A. Demographics',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF14161F),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Center(
+                  child: Text(
+                    'Update your personal details for a complete profile.',
+                    style: TextStyle(
+                      color: Color(0xFF4B5563),
+                      fontSize: 13.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -201,9 +255,16 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
               textInputAction: TextInputAction.done,
               onChanged: (v) => provider.updateDraft((p) => p.copyWith(allergies: v)),
             ),
-            const SizedBox(height: 28),
-            Center(
-              child: Text('B. Emergency Type', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 24),
+            const Center(
+              child: Text(
+                'B. Emergency Type',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF14161F),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             GridView.builder(
@@ -231,6 +292,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
             PrimaryButton(
               label: 'SAVE PROFILE',
               isLoading: provider.state.status == ViewStatus.loading,
+              gradientColors: const [Color(0xFF6B4EE6), Color(0xFF5B30DE)],
               onPressed: () async {
                 if (!_formKey.currentState!.validate()) return;
                 final ok = await provider.saveProfile();
@@ -244,6 +306,18 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
           ],
         ),
       ),
-    );
+    ),
+    // Floating actions in the bottom-left area, exactly matching Image 2
+    Positioned(
+      left: 18,
+      bottom: 96,
+      child: MedicalProfileFloatingActions(
+        onAddPrescription: () =>
+            Navigator.of(context).pushNamed('/add-prescription'),
+        onVoiceRecord: () => _openVoiceRecorder(provider),
+      ),
+    ),
+  ],
+);
   }
 }
