@@ -88,6 +88,11 @@ class _VoiceRecordingSheetState extends State<VoiceRecordingSheet>
     Navigator.of(context).pop(note);
   }
 
+  void _delete() {
+    _timer?.cancel();
+    Navigator.of(context).pop();
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -217,65 +222,79 @@ class _VoiceRecordingSheetState extends State<VoiceRecordingSheet>
             ),
             const SizedBox(height: 28),
 
-            // 3 Action Buttons Row: Pause, Stop, Send
+            // 3 Action Buttons Row: Pause/Resume, Stop/Delete, Save
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Pause / Resume
-                _buildActionButton(
-                  onTap: _recordState != _RecordState.stopped ? _togglePause : null,
-                  button: Container(
-                    width: 54,
-                    height: 54,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEDE9FE),
-                      shape: BoxShape.circle,
+                // Pause / Resume — hidden (but space preserved) when stopped
+                Visibility(
+                  visible: _recordState != _RecordState.stopped,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: _buildActionButton(
+                    onTap: _togglePause,
+                    button: Container(
+                      width: 54,
+                      height: 54,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEDE9FE),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _recordState == _RecordState.paused
+                            ? Icons.play_arrow_rounded
+                            : Icons.pause_rounded,
+                        color: const Color(0xFF6D28D9),
+                        size: 26,
+                      ),
                     ),
-                    child: Icon(
-                      _recordState == _RecordState.paused
-                          ? Icons.play_arrow_rounded
-                          : Icons.pause_rounded,
-                      color: const Color(0xFF6D28D9),
-                      size: 26,
-                    ),
+                    label: _recordState == _RecordState.paused ? 'Resume' : 'Pause',
                   ),
-                  label: _recordState == _RecordState.paused ? 'Resume' : 'Pause',
                 ),
 
-                // Stop Button
+                // Stop Button → Delete Button after stopping
                 _buildActionButton(
-                  onTap: _recordState != _RecordState.stopped ? _stop : null,
+                  onTap: _recordState != _RecordState.stopped ? _stop : _delete,
                   button: Container(
                     width: 68,
                     height: 68,
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFFFE4E6),
+                      color: _recordState == _RecordState.stopped
+                          ? const Color(0xFFFEE2E2)
+                          : const Color(0xFFFFE4E6),
                       border: Border.all(
-                        color: const Color(0xFFFECDD3),
+                        color: _recordState == _RecordState.stopped
+                            ? const Color(0xFFFCA5A5)
+                            : const Color(0xFFFECDD3),
                         width: 1.5,
                       ),
                     ),
                     child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE11D48),
+                      decoration: BoxDecoration(
+                        color: _recordState == _RecordState.stopped
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFFE11D48),
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Icon(
-                          Icons.stop_rounded,
+                          _recordState == _RecordState.stopped
+                              ? Icons.delete_rounded
+                              : Icons.stop_rounded,
                           color: Colors.white,
                           size: 30,
                         ),
                       ),
                     ),
                   ),
-                  label: 'Stop',
+                  label: _recordState == _RecordState.stopped ? 'Delete' : 'Stop',
                 ),
 
-                // Send Button
+                // Save Button (formerly Send)
                 _buildActionButton(
                   onTap: _seconds > 0 ? _send : null,
                   button: Container(
@@ -286,12 +305,12 @@ class _VoiceRecordingSheetState extends State<VoiceRecordingSheet>
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.send_rounded,
+                      Icons.save_rounded,
                       color: Colors.white,
                       size: 22,
                     ),
                   ),
-                  label: 'Send',
+                  label: 'Save',
                 ),
               ],
             ),
