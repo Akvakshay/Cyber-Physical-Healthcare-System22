@@ -95,4 +95,16 @@ class MedicalProfileProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> removeVoiceNote(String id) async {
+    try {
+      final updatedList = List<VoiceNoteModel>.from(draft.voiceNotes)
+        ..removeWhere((v) => v.id == id);
+      _state = ViewState.success(draft.copyWith(voiceNotes: updatedList));
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

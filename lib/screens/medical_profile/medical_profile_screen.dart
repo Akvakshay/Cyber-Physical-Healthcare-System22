@@ -12,6 +12,7 @@ import '../../widgets/emergency_type_card.dart';
 import '../../widgets/medical_profile_floating_actions.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/state_views.dart';
+import '../../widgets/voice_note_card.dart';
 import '../../widgets/voice_recording_sheet.dart';
 
 class MedicalProfileScreen extends StatefulWidget {
@@ -289,6 +290,31 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
               },
             ),
             const SizedBox(height: 28),
+
+            // Voice Notes section — only visible after at least one recording
+            if (draft.voiceNotes.isNotEmpty) ...[
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Voice notes',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF14161F),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...draft.voiceNotes.map(
+                (note) => VoiceNoteCard(
+                  key: ValueKey(note.id),
+                  note: note,
+                  onDelete: () => provider.removeVoiceNote(note.id),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
             PrimaryButton(
               label: 'SAVE PROFILE',
               isLoading: provider.state.status == ViewStatus.loading,
